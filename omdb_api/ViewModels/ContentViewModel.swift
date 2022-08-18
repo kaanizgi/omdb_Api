@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 
 class ContentViewModel:ObservableObject {
@@ -14,12 +15,17 @@ class ContentViewModel:ObservableObject {
     @Published var movies = [Search]()
     @Published var searchString = ""
     @Published var errorMessage = ""
-    //@Published var isError = false
+    private var cancellable:AnyCancellable?
     
-    let webService = WebServer()
     
+    init() {
+        getMoviesCombine()
+    }
+    
+    
+    /* OLD
     func getMovies() {
-        
+        //self.errorMessage = "Searching"
         let url = URL(string: "\(APIConstants.baseUrl)?s=\(searchString.trimmed().query())&apikey=\(APIConstants.apiKey)")
         WebServer().requestUrl(url: url,expecting: Movie.self) { Result in
             switch Result {
@@ -37,12 +43,34 @@ class ContentViewModel:ObservableObject {
             }
         }
     }
+     */
+    
+    //With Combine
+    func getMoviesCombine() {
+        let url = URL(string: "\(APIConstants.baseUrl)?s=\(searchString.trimmed().query())&apikey=\(APIConstants.apiKey)")!
+        cancellable =  APIService.shared.fetch(url: url, expecting: Movie.self)
+            .receive(on: DispatchQueue.main)
+            .sink { (completion) in
+                switch completion {
+                case.failure(_):
+                    if self.searchString.count > 3 {
+                        self.movies = []
+                        self.errorMessage = "Movie not found"
+                    }
+                case .finished:
+                    print("Succes")
+                }
+            } receiveValue: { data in
+                self.movies = data.search
+            }
+    }
+    
+    
+    
 }
     
 
 
-
-    
 
 
     

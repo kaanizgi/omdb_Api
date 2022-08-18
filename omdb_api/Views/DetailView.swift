@@ -26,7 +26,7 @@ struct DetailView: View {
             Spacer()
         }
         .onAppear {
-            vm.getMovieDetail(imdbID: imdbID)
+            vm.getMovieDetailCombine(imdbID: imdbID)
         }
     }
 }

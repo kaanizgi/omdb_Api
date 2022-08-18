@@ -30,7 +30,7 @@ struct ContentView: View {
         .onChange(of: vm.searchString) { search in
             withAnimation(.easeInOut) {
                 if search.isEmpty { vm.movies.removeAll() } else {
-                    vm.getMovies()
+                    vm.getMoviesCombine()
                 }
             }
         }

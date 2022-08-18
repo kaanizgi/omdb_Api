@@ -6,14 +6,16 @@
 //
 
 import Foundation
+import Combine
 
 class DetailViewModel:ObservableObject {
     
     
     @Published var filmDetails:MovieViewModel?
+    private var cancellable:AnyCancellable?
     
+    /* OLD
     func getMovieDetail(imdbID:String) {
-        
         let url = URL(string: "\(APIConstants.baseUrl)?i=\(imdbID)&apikey=\(APIConstants.apiKey)")
         WebServer().requestUrl(url: url,expecting: MovieDetail.self)
         { Result in
@@ -27,7 +29,22 @@ class DetailViewModel:ObservableObject {
             }
         }
     }
+     */
+    
+    func getMovieDetailCombine(imdbID:String) {
+        let url = URL(string: "\(APIConstants.baseUrl)?i=\(imdbID)&apikey=\(APIConstants.apiKey)")!
+        cancellable = APIService.shared.fetch(url: url, expecting: MovieDetail.self)
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                print(completion)
+            } receiveValue: { MovieDetail in
+                self.filmDetails = MovieViewModel(movie: MovieDetail)
+            }
+    }
+    
 }
+
+
 
 
 struct MovieViewModel {
