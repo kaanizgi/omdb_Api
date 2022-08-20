@@ -16,10 +16,25 @@ class ContentViewModel:ObservableObject {
     @Published var searchString = ""
     @Published var errorMessage = ""
     private var cancellable:AnyCancellable?
+    var cancellables = Set<AnyCancellable>()
     
     
     init() {
         getMoviesCombine()
+        
+        $searchString
+            .removeDuplicates()
+            .debounce(for: 0.7, scheduler: RunLoop.main)
+            .receive(on: DispatchQueue.main)
+            .sink { searched in
+                if searched == ""  {
+                    self.movies = []
+                }else {
+                    self.searchString = searched
+                    self.getMoviesCombine()
+                }
+            }
+            .store(in: &cancellables)
     }
     
     
@@ -61,6 +76,7 @@ class ContentViewModel:ObservableObject {
                     print("Succes")
                 }
             } receiveValue: { data in
+                self.errorMessage = ""
                 self.movies = data.search
             }
     }

@@ -18,23 +18,15 @@ struct ContentView: View {
                     }.buttonStyle(PlainButtonStyle())
                 }
                 
-                if vm.searchString.isEmpty && vm.searchString.count <= 3  {
+                if vm.searchString.isEmpty   {
                     EmptyView(error: "Please Search a Movie") }
-                else{
+                else if vm.errorMessage != "" {
                     Text(vm.errorMessage) }
             }
+            
             .navigationTitle("Movies")
             .navigationBarTitleDisplayMode(.inline)
-        }//.alert(vm.errorMessage, isPresented: $vm.isError, actions: {})
-        .searchable(text: $vm.searchString,placement: .navigationBarDrawer(displayMode:.always)).disableAutocorrection(true)
-        .onChange(of: vm.searchString) { search in
-            withAnimation(.easeInOut) {
-                if search.isEmpty { vm.movies.removeAll() } else {
-                    vm.getMoviesCombine()
-                }
-            }
-        }
-        //.onSubmit(of: .search) { vm.getMovies() }
+        }.searchable(text: $vm.searchString,placement:.navigationBarDrawer(displayMode:.always)).disableAutocorrection(true)
     }
 }
 

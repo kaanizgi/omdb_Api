@@ -57,6 +57,7 @@ class APIService {
     
     func fetch<T: Decodable>(url: URL,expecting:T.Type) -> AnyPublisher<T, Error> {
         return URLSession.shared.dataTaskPublisher(for: url)
+            
             .tryMap{(data,response) -> Data in
                 guard let response = response as? HTTPURLResponse,
                       response.statusCode >= 200 && response.statusCode < 300 else {
